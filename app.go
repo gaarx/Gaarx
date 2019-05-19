@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
+	"github.com/jinzhu/gorm"
+	"os"
 	"runtime"
 	"time"
 )
@@ -45,7 +46,7 @@ func (app *App) Start(options ...Option) *App {
 	}
 	app.events = make(map[string]*Event)
 	app.initializeLogger()
-	app.initializeDatabase()
+	//app.initializeDatabase()
 	app.ready = true
 	return app
 }
@@ -87,7 +88,11 @@ func (app *App) Stop() {
 
 func (app *App) initializeLogger() {
 	if app.configData.GetLogWay() != "" {
-		app.log = logrus.New()
+		f, err := os.OpenFile(app.configData.GetLogDestination(), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			panic(err)
+		}
+		app.log.Out = f
 	} else {
 		panic("Logger config doesn't configured")
 	}
@@ -106,6 +111,10 @@ func (app *App) initializeDatabase() {
 	app.database.SetLogger(app.log)
 	app.database.Set("gorm:table_options", "CHARSET=utf8")
 	app.MigrateEntities(app.migrateEntities...)
+}
+
+func (app *App) GetLog() *logrus.Logger {
+	return app.log
 }
 
 func (app *App) GetService(name string) (Service, bool) {
