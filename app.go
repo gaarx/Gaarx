@@ -46,7 +46,7 @@ func (app *App) Start(options ...Option) *App {
 	}
 	app.events = make(map[string]*Event)
 	app.initializeLogger()
-	//app.initializeDatabase()
+	app.initializeDatabase()
 	app.ready = true
 	return app
 }
@@ -99,6 +99,10 @@ func (app *App) initializeLogger() {
 }
 
 func (app *App) initializeDatabase() {
+	connString := app.Config().GetConnString()
+	if connString == "" {
+		return
+		}
 	db, err := gorm.Open(
 		"mysql",
 		app.Config().GetConnString(),
