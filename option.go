@@ -3,7 +3,6 @@ package gaarx
 import (
 	"context"
 	"github.com/sirupsen/logrus"
-	"io"
 	"sync"
 )
 
@@ -35,10 +34,9 @@ func WithContext(ctx context.Context) Option {
 	}
 }
 
-func WithLogger(out io.Writer, format string, level int32) Option {
+func WithLogger(log *logrus.Logger) Option {
 	return func(a *App) error {
-		a.log = logrus.New()
-
+		a.log = log
 		return nil
 	}
 }
