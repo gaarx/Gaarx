@@ -18,7 +18,7 @@ type (
 		services map[string]Service
 		ready    bool
 		ctx      context.Context
-		finish   func()
+		Finish   func()
 		log      *logrus.Logger
 		meta     *Meta
 		storage  *storage
@@ -42,7 +42,7 @@ func (app *App) Start(options ...Option) *App {
 	}
 	if app.ctx == nil {
 		ctx, finish := context.WithCancel(context.Background())
-		app.ctx, app.finish = ctx, finish
+		app.ctx, app.Finish = ctx, finish
 	}
 	app.events = make(map[string]*Event)
 	app.initializeLogger()
@@ -81,8 +81,8 @@ func (app *App) Work() {
 }
 
 func (app *App) Stop() {
-	if app.finish != nil {
-		app.finish()
+	if app.Finish != nil {
+		app.Finish()
 	}
 }
 
