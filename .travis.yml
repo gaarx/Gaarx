@@ -20,12 +20,12 @@ before_script:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls
   - go get github.com/go-playground/overalls
-  - go test ./...
+  - env GO111MODULE=on go test ./...
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
 
 script:
   # go vet
-  - go vet ./...
+  - env GO111MODULE=on go vet ./...
 
   # golangci-link
   - golangci-lint run ./...
@@ -34,7 +34,7 @@ script:
   - golint ./...
 
   # Build gaarx
-  - go build -o gaarx main.go
+  - env GO111MODULE=on go build -o gaarx main.go
 
   # Run all the tests with the race detector enabled
   - overalls -project=github.com/gaarx/gaarx -covermode=atomic -debug -- -race -v -coverpkg=./...
