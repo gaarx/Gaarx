@@ -37,7 +37,7 @@ script:
   - golint ./...
 
   # Build gaarx
-  - go build -o gaarx main.go
+  #- go build -o gaarx app.go TODO: Add cmd example and build it
 
   # Run all the tests with the race detector enabled
   - overalls -project=github.com/gaarx/gaarx -covermode=atomic -debug -- -race -v -coverpkg=./...
