@@ -32,7 +32,7 @@ script:
   # golint
   - golint ./...
 
-  # Build cmd/gapi
+  # Build gaarx
   - go build -o gaarx main.go
 
   # Run all the tests with the race detector enabled
