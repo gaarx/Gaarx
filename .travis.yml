@@ -14,6 +14,10 @@ matrix:
 notifications:
   email: true
 
+before_install:                                                                 
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh  
+  - dep ensure
+
 before_script:
   - GO_FILES=$(find . -iname '*.go' -type f | grep -v /vendor/) # All the .go files, excluding vendor/
   - go get golang.org/x/lint/golint # Linter
