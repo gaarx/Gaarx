@@ -19,7 +19,7 @@ func WithConfigFile(way string, configFile string, configStruct ConfigAble) Opti
 
 func WithServices(services ...Service) Option {
 	return func(a *App) error {
-		a.services = make(map[string]Service, 0)
+		a.services = make(map[string]Service)
 		for _, s := range services {
 			a.services[s.GetName()] = s
 		}
