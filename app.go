@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	graylog "github.com/gemnasium/logrus-graylog-hook"
 	"github.com/sirupsen/logrus"
-	"github.com/jinzhu/gorm"
 	"os"
 	"runtime"
 	"time"
@@ -14,7 +14,7 @@ import (
 type (
 	App struct {
 		config
-		db
+		database interface{}
 		services map[string]Service
 		ready    bool
 		ctx      context.Context
@@ -32,7 +32,8 @@ type (
 	}
 )
 
-func (app *App) Start(options ...Option) *App {
+// Initialize application with option. Logger and Database should be initialized yet
+func (app *App) Initialize(options ...Option) *App {
 	for _, option := range options {
 		e := option(app)
 		if e != nil {
@@ -45,13 +46,17 @@ func (app *App) Start(options ...Option) *App {
 		app.ctx, app.Finish = ctx, finish
 	}
 	app.events = make(map[string]*Event)
-	app.initializeLogger()
-	app.initializeDatabase()
 	app.ready = true
 	return app
 }
 
+// Alias for Start
 func (app *App) Work() {
+	app.Start()
+}
+
+// Start application, all services and wait for calling Stop() method
+func (app *App) Start() {
 	if !app.ready {
 		panic("try to work not ready application")
 	}
@@ -80,47 +85,20 @@ func (app *App) Work() {
 	}
 }
 
+// Stop all services and application
 func (app *App) Stop() {
+	app.GetLog().Info("Application will be stopped")
 	if app.Finish != nil {
 		app.Finish()
 	}
 }
 
-func (app *App) initializeLogger() {
-	if app.configData.GetLogWay() != "" {
-		f, err := os.OpenFile(app.configData.GetLogDestination(), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			panic(err)
-		}
-		app.log.Out = f
-	} else {
-		panic("Logger config doesn't configured")
-	}
-}
-
-func (app *App) initializeDatabase() {
-	connString := app.Config().GetConnString()
-	if connString == "" {
-		return
-		}
-	db, err := gorm.Open(
-		"mysql",
-		app.Config().GetConnString(),
-	)
-	if err != nil {
-		app.log.Fatal(err)
-		panic(err)
-	}
-	app.database = db
-	app.database.SetLogger(app.log)
-	app.database.Set("gorm:table_options", "CHARSET=utf8")
-	app.MigrateEntities(app.migrateEntities...)
-}
-
+// Return logrus instance
 func (app *App) GetLog() *logrus.Logger {
 	return app.log
 }
 
+// Return service and flag provide that service isset or not
 func (app *App) GetService(name string) (Service, bool) {
 	if service, ok := app.services[name]; ok {
 		return service, true
@@ -128,14 +106,17 @@ func (app *App) GetService(name string) (Service, bool) {
 	return nil, false
 }
 
+// Return Meta information
 func (app *App) GetMeta() *Meta {
 	return app.meta
 }
 
+// Return all of application storage
 func (app *App) Storage() *storage {
 	return app.storage
 }
 
+// Call concrete method (should be defined in Initialize.WithMethods)
 func (app *App) CallMethod(name string) error {
 	if app.methods == nil {
 		return errors.New("app run without methods option")
@@ -146,6 +127,7 @@ func (app *App) CallMethod(name string) error {
 	return errors.New("app has no method " + name)
 }
 
+// Return concrete event
 func (app *App) Event(name string) *Event {
 	if event, ok := app.events[name]; ok {
 		return event
@@ -154,4 +136,30 @@ func (app *App) Event(name string) *Event {
 	app.events[name] = ev
 	go ev.iterate()
 	return ev
+}
+
+// Load configuration from file
+func (app *App) LoadConfig(way string, configFile string, configStruct interface{}) error {
+	app.initConfig(configStruct)
+	return app.loadConfig(ConfigSource(way), configFile)
+}
+
+// Initialize logger with given settings
+func (app *App) InitializeLogger(way LogWay, path string, formatter logrus.Formatter) error {
+	switch way {
+	case FileLog:
+		f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			panic(err)
+		}
+		app.log.Out = f
+		break
+	case GrayLog:
+		app.log.AddHook(graylog.NewGraylogHook(path, map[string]interface{}{}))
+		break
+	default:
+		app.log.Out = os.Stdout
+	}
+	app.log.SetFormatter(formatter)
+	return nil
 }

@@ -10,6 +10,7 @@ replace layeh.com/radius => github.com/layeh/radius v0.0.0-20190118135028-0f678f
 
 require (
 	git.apache.org/thrift.git v0.12.0 // indirect
+	github.com/gemnasium/logrus-graylog-hook v2.0.7+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/jinzhu/gorm v1.9.4
 	github.com/micro/go-config v1.1.0

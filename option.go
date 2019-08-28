@@ -10,13 +10,6 @@ type (
 	Option func(app *App) error
 )
 
-func WithConfigFile(way string, configFile string, configStruct ConfigAble) Option {
-	return func(a *App) error {
-		a.initConfig(configStruct)
-		return a.loadConfig(ConfigSource(way), configFile)
-	}
-}
-
 func WithServices(services ...Service) Option {
 	return func(a *App) error {
 		a.services = make(map[string]Service)
@@ -37,13 +30,6 @@ func WithContext(ctx context.Context) Option {
 func WithLogger(log *logrus.Logger) Option {
 	return func(a *App) error {
 		a.log = log
-		return nil
-	}
-}
-
-func WithMigrateEntities(entities ...interface{}) Option {
-	return func(a *App) error {
-		a.migrateEntities = entities
 		return nil
 	}
 }
