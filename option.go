@@ -2,7 +2,6 @@ package gaarx
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -23,13 +22,6 @@ func WithServices(services ...Service) Option {
 func WithContext(ctx context.Context) Option {
 	return func(a *App) error {
 		a.ctx = ctx
-		return nil
-	}
-}
-
-func WithLogger(log *logrus.Logger) Option {
-	return func(a *App) error {
-		a.log = log
 		return nil
 	}
 }

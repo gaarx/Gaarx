@@ -146,6 +146,7 @@ func (app *App) LoadConfig(way string, configFile string, configStruct interface
 
 // Initialize logger with given settings
 func (app *App) InitializeLogger(way LogWay, path string, formatter logrus.Formatter) error {
+	app.log = logrus.New()
 	switch way {
 	case FileLog:
 		f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
