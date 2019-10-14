@@ -1,15 +1,13 @@
 package gaarx
 
 import (
-	confLib "github.com/micro/go-micro/config"
-	"github.com/micro/go-micro/config/encoder"
-	"github.com/micro/go-micro/config/source"
-	"github.com/micro/go-micro/config/source/file"
+	"errors"
+	"fmt"
+	"github.com/spf13/viper"
 )
 
 type (
 	config struct {
-		c          confLib.Config
 		configData interface{}
 	}
 
@@ -17,21 +15,20 @@ type (
 )
 
 func (c *config) initConfig(config interface{}) {
-	c.c = confLib.NewConfig()
 	c.configData = config
 }
 
 func (c *config) loadConfig(path string) error {
-	var e encoder.Encoder
-	fileSource := file.NewSource(
-		file.WithPath(path),
-		source.WithEncoder(e),
-	)
-	err := c.c.Load(fileSource)
-	if err != nil {
-		return err
+	viper.SetConfigName("config")
+	viper.AddConfigPath(path)
+	if err := viper.ReadInConfig(); err != nil {
+		return errors.New(fmt.Sprintf("error reading config file, %s", err))
 	}
-	return c.c.Scan(&c.configData)
+	err := viper.Unmarshal(&c.configData)
+	if err != nil {
+		return errors.New(fmt.Sprintf("unable to decode into struct, %v", err))
+	}
+	return nil
 }
 
 func (c *config) Config() interface{} {
