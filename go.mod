@@ -9,10 +9,11 @@ replace github.com/golang/lint => github.com/golang/lint v0.0.0-20190227174305-8
 replace layeh.com/radius => github.com/layeh/radius v0.0.0-20190118135028-0f678f039617
 
 require (
-	git.apache.org/thrift.git v0.12.0 // indirect
-	github.com/gemnasium/logrus-graylog-hook v2.0.7+incompatible // indirect
-	github.com/go-sql-driver/mysql v1.4.1
-	github.com/jinzhu/gorm v1.9.4
-	github.com/micro/go-config v1.1.0
-	github.com/sirupsen/logrus v1.4.1
+	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
+	github.com/gemnasium/logrus-graylog-hook v2.0.7+incompatible
+	github.com/micro/go-micro v1.11.3
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/sirupsen/logrus v1.4.2
+	gopkg.in/yaml.v2 v2.2.2
 )
