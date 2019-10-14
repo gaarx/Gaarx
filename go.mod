@@ -2,11 +2,11 @@ module github.com/gaarx/gaarx
 
 go 1.12
 
-replace github.com/testcontainers/testcontainer-go => github.com/testcontainers/testcontainers-go v0.0.0-20181115231424-8e868ca12c0f
+replace github.com/testcontainers/testcontainer-go => github.com/testcontainers/testcontainers-go 8e868ca12c0f
 
-replace github.com/golang/lint => github.com/golang/lint v0.0.0-20190227174305-8f45f776aaf1
+replace github.com/golang/lint => github.com/golang/lint 8f45f776aaf1
 
-replace layeh.com/radius => github.com/layeh/radius v0.0.0-20190118135028-0f678f039617
+replace layeh.com/radius => github.com/layeh/radius 0f678f039617
 
 require (
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
