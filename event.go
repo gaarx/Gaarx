@@ -50,6 +50,8 @@ func (e *Event) Listen() <-chan interface{} {
 
 func (e *Event) Close() {
 	for _, c := range e.out {
-		close(c)
+		if _, ok := <-c; !ok {
+			close(c)
+		}
 	}
 }
