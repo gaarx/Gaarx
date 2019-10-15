@@ -50,7 +50,7 @@ func (e *Event) Listen() <-chan interface{} {
 
 func (e *Event) Close() {
 	for _, c := range e.out {
-		if _, ok := <-c; !ok {
+		if _, ok := <-c; ok {
 			close(c)
 		}
 	}
