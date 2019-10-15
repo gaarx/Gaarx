@@ -18,9 +18,10 @@ func (c *config) initConfig(config interface{}) {
 	c.configData = config
 }
 
-func (c *config) loadConfig(path string) error {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(path)
+func (c *config) loadConfig(filename string, configType string) error {
+	viper.SetConfigName(filename)
+	viper.SetConfigType(configType)
+	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
 		return errors.New(fmt.Sprintf("error reading config file, %s", err))
 	}

@@ -139,9 +139,9 @@ func (app *App) Event(name string) *Event {
 }
 
 // Load configuration from file
-func (app *App) LoadConfig(configFile string, configStruct interface{}) error {
+func (app *App) LoadConfig(configFile, configType string, configStruct interface{}) error {
 	app.initConfig(configStruct)
-	return app.loadConfig(configFile)
+	return app.loadConfig(configFile, configType)
 }
 
 // Initialize logger with given settings
