@@ -24,6 +24,7 @@ type (
 		storage  *storage
 		methods  *methods
 		events   map[string]*Event
+		debug    bool
 	}
 	Service interface {
 		Start(app *App) error
@@ -133,8 +134,13 @@ func (app *App) Event(name string) *Event {
 		return event
 	}
 	ev := newEvent(name, app.ctx)
+	ev.debug = app.debug
+	ev.log = app.GetLog()
 	app.events[name] = ev
 	go ev.iterate()
+	if app.debug {
+		app.GetLog().Debugf("Event %s was created", name)
+	}
 	return ev
 }
 

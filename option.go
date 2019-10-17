@@ -62,3 +62,10 @@ func WithMethods(functions ...Method) Option {
 		return nil
 	}
 }
+
+func WithDebug(debug bool) Option {
+	return func(a *App) error {
+		a.debug = debug
+		return nil
+	}
+}

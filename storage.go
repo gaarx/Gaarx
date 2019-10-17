@@ -24,6 +24,7 @@ func (s *storage) Get(scope string, key interface{}) (interface{}, error) {
 func (s *storage) Set(scope string, key interface{}, value interface{}) error {
 	if scopeMap, ok := s.innerMap[scope]; ok {
 		scopeMap.Store(key, value)
+		return nil
 	}
 	return errors.New("invalid scope")
 }

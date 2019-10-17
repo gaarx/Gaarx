@@ -1,13 +1,18 @@
 package gaarx
 
-import "context"
+import (
+	"context"
+	"github.com/sirupsen/logrus"
+)
 
 type (
 	Event struct {
-		name string
-		ctx  context.Context
-		in   chan interface{}
-		out  []chan interface{}
+		name  string
+		ctx   context.Context
+		in    chan interface{}
+		out   []chan interface{}
+		debug bool
+		log   *logrus.Logger
 	}
 )
 
@@ -27,9 +32,15 @@ func (e *Event) iterate() {
 			e.Close()
 			break
 		case data := <-e.in:
+			if e.debug {
+				e.log.Debugf("For event %s received data: %v (%d recipients)", e.name, data, len(e.out))
+			}
 			if len(e.out) > 0 {
 				for _, c := range e.out {
 					c <- data
+					if e.debug {
+						e.log.Debugf("For event %s event was send")
+					}
 				}
 			}
 		}
