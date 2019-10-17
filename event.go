@@ -33,13 +33,19 @@ func (e *Event) iterate() {
 			break
 		case data := <-e.in:
 			if e.debug {
-				e.log.Debugf("For event %s received data: %v (%d recipients)", e.name, data, len(e.out))
+				e.log.
+					WithFields(map[string]interface{}{
+						"Event Name":    e.name,
+						"Received Data": data,
+						"Recipients":    len(e.out),
+					}).
+					Debug("Received data")
 			}
 			if len(e.out) > 0 {
 				for _, c := range e.out {
 					c <- data
 					if e.debug {
-						e.log.Debugf("For event %s event was send")
+						e.log.WithField("Event Name", e.name).Debugf("Event was send to recipients")
 					}
 				}
 			}
