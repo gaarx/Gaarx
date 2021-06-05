@@ -2,3 +2,5 @@ DB = "health:solghwiuey@tcp(localhost:3333)/health?charset=utf8mb4,utf8&parseTim
 Log = "./log.log"
 [Http]
 Addr = "localhost:8005"
+[Checker]
+Periodicity = 10

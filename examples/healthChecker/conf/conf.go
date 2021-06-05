@@ -6,4 +6,7 @@ type Config struct {
 	Http struct {
 		Addr string
 	}
+	Checker struct {
+		Periodicity int
+	}
 }

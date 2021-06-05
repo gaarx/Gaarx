@@ -6,3 +6,6 @@ type Resource struct {
 	gorm.Model
 	Url string
 }
+
+const ScopeResources = "RSR"
+const EventReloadResources = "RLS"

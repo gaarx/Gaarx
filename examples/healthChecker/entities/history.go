@@ -11,4 +11,7 @@ type History struct {
 	CheckTime   time.Time `json:"checkTime"`
 	StatusCode  int       `json:"statusCode"`
 	RequestTime int       `json:"requestTime"`
+	Status      string    `json:"status"`
 }
+
+const ScopeHistories = "HST"

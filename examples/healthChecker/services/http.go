@@ -25,9 +25,9 @@ func GetHttpService(ctx context.Context) gaarx.Service {
 func (hs *HttpService) Start(app *gaarx.App) error {
 	hs.app = app
 	r := gin.Default()
-	conf := app.Config().(*conf.Config).Http
+	config := app.Config().(*conf.Config).Http
 	srv := &http.Server{
-		Addr:    conf.Addr,
+		Addr:    config.Addr,
 		Handler: r,
 	}
 	private := r.Group("/", gin.BasicAuth(gin.Accounts{
@@ -54,7 +54,7 @@ func (hs *HttpService) GetName() string {
 }
 
 func index(c *gin.Context) {
-	c.HTML(200, "http", gin.H{
+	c.JSON(200, gin.H{
 		"status": "success",
 	})
 }
@@ -64,13 +64,14 @@ func (hs *HttpService) addResource() func(c *gin.Context) {
 		url := c.PostForm("url")
 		db, ok := hs.app.GetDB().(*gorm.DB)
 		if !ok {
-			c.HTML(500, "error", gin.H{
+			c.JSON(500, gin.H{
 				"status": "internal error",
 			})
 		}
 		res := entities.Resource{Url: url}
 		db.Create(&res)
-		c.HTML(204, "success", gin.H{
+		hs.app.Event(entities.EventReloadResources).Dispatch(res)
+		c.JSON(204, gin.H{
 			"status": "created",
 			"id":     res.ID,
 		})
@@ -82,7 +83,7 @@ func (hs *HttpService) getResourceHistory() func(c *gin.Context) {
 		url := c.Query("url")
 		db, ok := hs.app.GetDB().(*gorm.DB)
 		if !ok {
-			c.HTML(500, "error", gin.H{
+			c.JSON(500, gin.H{
 				"status": "internal error",
 			})
 		}
