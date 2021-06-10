@@ -32,6 +32,7 @@ func (c *config) loadConfig(filename string, configType string) error {
 	return nil
 }
 
+// Config returns internal config data
 func (c *config) Config() interface{} {
 	return c.configData
 }

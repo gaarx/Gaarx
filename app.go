@@ -4,11 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	graylog "github.com/gemnasium/logrus-graylog-hook"
-	"github.com/sirupsen/logrus"
-	"os"
 	"runtime"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 type (
@@ -19,7 +18,6 @@ type (
 		ready    bool
 		ctx      context.Context
 		Finish   func()
-		log      *logrus.Logger
 		meta     *Meta
 		storage  *storage
 		methods  *methods
@@ -51,7 +49,7 @@ func (app *App) Initialize(options ...Option) *App {
 	return app
 }
 
-// Alias for Start
+// Work Alias for Start
 func (app *App) Work() {
 	app.Start()
 }
@@ -63,21 +61,21 @@ func (app *App) Start() {
 	}
 	for name, service := range app.services {
 		go func(n string, s Service) {
-			app.log.Info("Starting ", n)
+			log.Info().Str("service Name", n).Msg("Starting")
 			err := s.Start(app)
 			if err != nil {
-				app.log.Warning(err)
+				log.Warn().Err(err)
 			}
 		}(name, service)
 	}
 	for {
 		select {
 		case <-app.ctx.Done():
-			app.log.Debug("Go to stop all")
+			log.Debug().Msg("Go to stop all")
 			for _, service := range app.services {
 				service.Stop()
 			}
-			app.log.Info("application was stopped")
+			log.Info().Msg("application was stopped")
 			return
 		default:
 			runtime.Gosched()
@@ -88,18 +86,13 @@ func (app *App) Start() {
 
 // Stop all services and application
 func (app *App) Stop() {
-	app.GetLog().Info("Application will be stopped")
+	log.Info().Msg("Application will be stopped")
 	if app.Finish != nil {
 		app.Finish()
 	}
 }
 
-// Return logrus instance
-func (app *App) GetLog() *logrus.Logger {
-	return app.log
-}
-
-// Return service and flag provide that service isset or not
+// GetService Return service and flag provide that service isset or not
 func (app *App) GetService(name string) (Service, bool) {
 	if service, ok := app.services[name]; ok {
 		return service, true
@@ -107,17 +100,17 @@ func (app *App) GetService(name string) (Service, bool) {
 	return nil, false
 }
 
-// Return Meta information
+// GetMeta Return Meta information
 func (app *App) GetMeta() *Meta {
 	return app.meta
 }
 
-// Return all of application storage
+// Storage Return all of application storage
 func (app *App) Storage() *storage {
 	return app.storage
 }
 
-// Call concrete method (should be defined in Initialize.WithMethods)
+// CallMethod call concrete method (should be defined in Initialize.WithMethods)
 func (app *App) CallMethod(name string) error {
 	if app.methods == nil {
 		return errors.New("app run without methods option")
@@ -128,45 +121,23 @@ func (app *App) CallMethod(name string) error {
 	return errors.New("app has no method " + name)
 }
 
-// Return concrete event
+// Event Return concrete event
 func (app *App) Event(name string) *Event {
 	if event, ok := app.events[name]; ok {
 		return event
 	}
 	ev := newEvent(name, app.ctx)
 	ev.debug = app.debug
-	ev.log = app.GetLog()
 	app.events[name] = ev
 	go ev.iterate()
 	if app.debug {
-		app.GetLog().Debugf("Event %s was created", name)
+		log.Debug().Msgf("Event %s was created", name)
 	}
 	return ev
 }
 
-// Load configuration from file
+// LoadConfig Load configuration from file
 func (app *App) LoadConfig(configFile, configType string, configStruct interface{}) error {
 	app.initConfig(configStruct)
 	return app.loadConfig(configFile, configType)
-}
-
-// Initialize logger with given settings
-func (app *App) InitializeLogger(way LogWay, path string, formatter logrus.Formatter) error {
-	app.log = logrus.New()
-	switch way {
-	case FileLog:
-		f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			panic(err)
-		}
-		app.log.Out = f
-		break
-	case GrayLog:
-		app.log.AddHook(graylog.NewGraylogHook(path, map[string]interface{}{}))
-		break
-	default:
-		app.log.Out = os.Stdout
-	}
-	app.log.SetFormatter(formatter)
-	return nil
 }
