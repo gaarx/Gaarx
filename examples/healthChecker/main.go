@@ -7,7 +7,7 @@ import (
 	"github.com/gaarx/gaarx"
 	database "github.com/gaarx/gaarxDatabase"
 	"github.com/jinzhu/gorm"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"healthchecker/conf"
 	"healthchecker/entities"
 	"healthchecker/services"
@@ -29,12 +29,6 @@ func main() {
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	var config conf.Config
 	err := application.LoadConfig(*configFile, *configSource, &config)
-	if err != nil {
-		panic(err)
-	}
-	err = application.InitializeLogger("file", config.Log, &logrus.TextFormatter{
-		FullTimestamp: true,
-	})
 	if err != nil {
 		panic(err)
 	}
@@ -63,7 +57,7 @@ func main() {
 					for _, rs := range resources {
 						err = app.Storage().Set(entities.ScopeResources, rs.Url, rs)
 						if err != nil {
-							app.GetLog().Error(err)
+							log.Error().Err(err)
 						}
 					}
 					return nil
