@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gaarx/gaarx"
 	"github.com/jinzhu/gorm"
+	"github.com/rs/zerolog/log"
 	"healthchecker/conf"
 	"healthchecker/entities"
 	"net/http"
@@ -70,7 +71,7 @@ func (cs *CheckService) work() {
 					RequestTime: int(end.Sub(start).Milliseconds()),
 				}
 				if err != nil {
-					cs.app.GetLog().Error(err)
+					log.Error().Err(err)
 					h.Status = fmt.Sprintf("Request failed: %v", err.Error())
 					cs.app.GetDB().(*gorm.DB).Save(&h)
 					continue
